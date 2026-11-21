@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Combat Shooter</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#06090d;font-family:"Trebuchet MS",Verdana,sans-serif;color:#fff;user-select:none}
+canvas{display:block;position:fixed;inset:0}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px}.on{display:flex}
+.gold{background:linear-gradient(#fff3b0,#e8b923 55%,#8a5a0a);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900}
+.btn{border:0;cursor:pointer;padding:13px 34px;margin:7px;font:bold 20px "Trebuchet MS";color:#1a1005;background:linear-gradient(#ffd56a,#e0a020);clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);min-width:250px}
+.btn:disabled{filter:grayscale(1) brightness(.6);cursor:not-allowed}.btn.g{background:#fff;color:#222}.btn.d{background:#2b3a4a;color:#fff}
+input{padding:12px 14px;margin:6px;width:280px;max-width:90vw;font:18px "Trebuchet MS";border:2px solid #e0a020;background:#0b121acc;color:#fff;border-radius:4px}
+#tap{background:#06090d;cursor:pointer}#tap h2{font-size:clamp(30px,7vw,60px);letter-spacing:6px;margin:0}
+.bar{position:fixed;left:0;right:0;height:9vh;background:#000}.bar.t{top:0}.bar.b{bottom:0}
+#sub{position:fixed;bottom:12vh;left:0;right:0;font-size:clamp(18px,3vw,30px);text-shadow:0 2px 8px #000}
+#skip{position:fixed;right:16px;bottom:16px;pointer-events:auto;background:#0008;color:#fff;border:1px solid #fff8;padding:8px 16px;cursor:pointer}
+#flash{position:fixed;inset:0;pointer-events:none;background:radial-gradient(transparent 30%,#c00a);opacity:0;transition:opacity .3s}
+#title{background:linear-gradient(transparent 40%,#000a)}#t1{letter-spacing:10px;font-size:clamp(14px,2.4vw,24px);opacity:0;animation:fi 1.5s .3s forwards}
+#t2{font-size:clamp(40px,10vw,120px);margin:6px 0 30px;letter-spacing:4px;opacity:0;animation:fi 1.5s 1.2s forwards;filter:drop-shadow(0 4px 0 #3a2500)}
+#btns{opacity:0;transition:opacity 1s}#btns.show{opacity:1}@keyframes fi{to{opacity:1}}
+#auth,#name{background:#05101acc}.err{color:#ff7a6a;min-height:22px}
+#logos{display:grid;grid-template-columns:repeat(auto-fill,56px);gap:8px;max-width:640px;max-height:36vh;overflow:auto;margin:8px;padding:6px;justify-content:center}
+.lg{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;border:3px solid transparent;overflow:hidden}.lg img{width:100%;height:100%;object-fit:cover}.lg.sel{border-color:#ffd56a;box-shadow:0 0 12px #ffd56a}
+#lobby{justify-content:flex-start;align-items:stretch;pointer-events:none;text-align:left}#lobby>*{pointer-events:auto}
+#chip{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:10px;background:#000a;padding:6px 16px 6px 6px;border-radius:40px;cursor:pointer;border:2px solid #e0a020;font-weight:bold}
+#coins{position:absolute;right:14px;top:14px;background:#000a;padding:6px 14px;border-radius:30px;display:flex;gap:8px;align-items:center;font-weight:bold;color:#ffd56a}
+#side{position:absolute;right:14px;top:80px;display:flex;flex-direction:column;gap:12px}
+.ib{width:60px;height:60px;border:2px solid #e0a020;background:#000b;color:#ffd56a;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}.ib svg{width:34px;height:34px}
+#play{position:absolute;right:20px;bottom:24px}
+#modal{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:9}#modal.on{display:flex}
+#mb{background:#101a24;border:2px solid #e0a020;border-radius:10px;padding:22px;max-width:min(680px,94vw);max-height:90vh;overflow:auto;text-align:center}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#e0a020;color:#111;padding:10px 18px;border-radius:6px;display:none;z-index:20;max-width:90vw}
+#hudg{position:fixed;inset:0;pointer-events:none;display:none}
+#cross span{position:absolute;left:50%;top:50%;background:#fff;box-shadow:0 0 2px #000}
+#cross.hit span{background:#ff3b2a}
+#hpb{position:absolute;left:24px;bottom:24px;width:260px;height:16px;border:2px solid #fff;background:#0008;transform:skewX(-14deg)}#hp{height:100%;width:100%;background:#ff8a3d}
+#amm{position:absolute;right:26px;bottom:20px;font-size:42px;font-weight:bold;text-align:right;text-shadow:0 2px 6px #000}#amm small{font-size:16px;display:block;color:#ffd56a}
+#left{position:absolute;top:14px;left:0;right:0;text-align:center;font-size:20px;text-shadow:0 2px 6px #000}
+#dmg{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 160px 40px #b00;opacity:0;z-index:5}
+.splat{position:fixed;border-radius:50%;pointer-events:none;background:radial-gradient(#8a0a10 30%,#6a0b10aa 55%,transparent 72%);opacity:.95;transition:opacity 2.5s;z-index:5}
+#getout{position:fixed;bottom:14vh;left:50%;transform:translateX(-50%);display:none}
+#end,#pause{background:#000b;z-index:8;cursor:pointer}#end h1{font-size:clamp(34px,8vw,90px);margin:0 0 20px}
+</style></head><body>
+<div id="tap" class="scr on"><h2 class="gold">COMBAT SHOOTER</h2><p>Toca para comenzar · activa el sonido</p></div>
+<div id="intro" class="scr"><div class="bar t"></div><div class="bar b"></div><div id="sub"></div><button id="skip">Saltar</button></div>
+<div id="flash"></div><div id="dmg"></div><div id="toast"></div>
+<div id="title" class="scr"><div id="t1">JECK · BOSQUE · 06:42</div><h1 id="t2" class="gold">COMBAT SHOOTER</h1>
+<div id="btns"><button class="btn" id="bNew">CREAR CUENTA</button><br><button class="btn d" id="bLog">INICIAR SESIÓN</button><br><button class="btn g" id="bGoo">INICIAR CON GOOGLE</button></div></div>
+<div id="auth" class="scr"><h2 class="gold" id="aT" style="font-size:36px;margin:0 0 10px"></h2><input id="em" type="email" placeholder="Correo"><input id="pw" type="password" placeholder="Clave (mín. 4)"><div class="err" id="ae"></div><button class="btn" id="aGo">CONTINUAR</button><button class="btn d" id="aBack">VOLVER</button></div>
+<div id="name" class="scr"><h2 class="gold" style="font-size:34px;margin:0">TU APODO</h2><input id="nk" maxlength="14" placeholder="Pon tu apodo"><p style="margin:4px">Elige tu logo</p><div id="logos"></div><button class="btn" id="nGo" disabled>COMENZAR</button></div>
+<div id="lobby" class="scr"><div id="chip"></div><div id="coins"></div>
+<div id="side"><button class="ib" id="bShop" title="Tienda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 7H6"/><circle cx="10" cy="20.5" r="1.4"/><circle cx="18" cy="20.5" r="1.4"/></svg></button>
+<button class="ib" id="bLuck" title="Luck Royale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M2 8h20v4H2zM12 8v13M12 8C9 8 7 6.5 8 5s3.5 0 4 3c.5-3 3-4.500 4-3s-1 3-4 3"/></svg></button>
+<button class="ib" id="bFr" title="Amigos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.500 3.500-7 8-7s8 2.500 8 7"/><path d="M8 5.500l8 2.500"/></svg></button>
+<button class="ib" id="bMail" title="Correo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 7 10-7"/></svg></button></div>
+<button class="btn" id="play">INICIAR PARTIDA</button></div>
+<div id="modal"><div id="mb"></div></div>
+<button class="btn" id="getout">BAJARSE</button>
+<div id="hudg"><div id="cross"><span id="c1" style="width:2px;height:9px"></span><span id="c2" style="width:2px;height:9px"></span><span id="c3" style="width:9px;height:2px"></span><span id="c4" style="width:9px;height:2px"></span></div>
+<div id="left"></div><div id="hpb"><div id="hp"></div></div><div id="amm"><small id="wn"></small><span id="mg"></span></div></div>
+<div id="pause" class="scr"><h1 class="gold">PAUSA</h1><p>Clic para seguir</p></div>
+<div id="end" class="scr"><h1 id="eT"></h1><button class="btn" id="eBack">VOLVER AL LOBBY</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),R=Math.random,V3=THREE.Vector3,PI=Math.PI;
+const ren=new THREE.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);ren.shadowMap.enabled=true;ren.shadowMap.type=THREE.PCFSoftShadowMap;ren.outputEncoding=THREE.sRGBEncoding;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.1;document.body.prepend(ren.domElement);
+const cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.05,500);
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+const S={forest:new THREE.Scene(),city:new THREE.Scene()};let cur=S.forest,clouds=[];
+function use(k){cur=S[k];cur.add(cam)}
+const mat=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,flatShading:true,roughness:.9,metalness:0},o));
+const mesh=(g,m,cast=true)=>{const x=new THREE.Mesh(g,m);x.castShadow=cast;x.receiveShadow=true;return x};
+/* ---------- Audio ---------- */
+let AC;const ac=()=>AC||(AC=new(window.AudioContext||window.webkitAudioContext)());
+function noise(d,f,g,ty='lowpass'){try{const a=ac(),n=a.sampleRate*d|0,b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=(R()*2-1)*(1-i/n)**2;const s=a.createBufferSource();s.buffer=b;const fl=a.createBiquadFilter();fl.type=ty;fl.frequency.value=f;const gn=a.createGain();gn.gain.value=g;s.connect(fl);fl.connect(gn);gn.connect(a.destination);s.start()}catch(e){}}
+function tone(f,d,g,ty='sine',f2){try{const a=ac(),o=a.createOscillator(),gn=a.createGain(),t=a.currentTime;o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(a.destination);o.start();o.stop(t+d)}catch(e){}}
+const SND={shot:(g=1)=>{noise(.3,2400,.9*g);tone(130,.18,.55*g,'sine',40)},hit:()=>{tone(1500,.05,.22,'square');noise(.08,3500,.4,'highpass')},hurt:()=>{tone(90,.35,.8,'sine',40);noise(.25,500,.7)},dead:()=>{tone(220,.45,.25,'sawtooth',50)},click:()=>tone(600,.05,.15,'square')};
+/* ---------- Armas ---------- */
+function gunModel(k){const g=new THREE.Group(),d=mat(0x2a2f38,{metalness:.5,roughness:.5}),o=mat(0xff8a3d),B=(w,h,l,m,x,y,z)=>{const q=mesh(new THREE.BoxGeometry(w,h,l),m,false);q.position.set(x,y,z);g.add(q);return q};
+if(k==0){B(.1,.14,.55,d,0,0,0);B(.08,.2,.1,d,0,-.15,-.05).rotation.x=.2;B(.08,.12,.26,d,0,-.02,.4);B(.125,.04,.3,o,0,.06,-.05);B(.03,.05,.04,o,0,.1,-.25);const b=mesh(new THREE.CylinderGeometry(.03,.035,.45,6),d,false);b.rotation.x=PI/2;b.position.set(0,.03,-.48);g.add(b)}
+else{B(.08,.1,.3,d,0,0,0);B(.07,.16,.09,d,0,-.13,.1).rotation.x=.25;B(.085,.03,.2,o,0,.05,-.02);const b=mesh(new THREE.CylinderGeometry(.022,.025,.18,6),d,false);b.rotation.x=PI/2;b.position.set(0,.02,-.22);g.add(b)}return g}
+const W=[{n:'AK-PRO',dmg:30,rate:.09,mag:30,rec:.013,auto:1,m:30,pos:[.26,-.25,-.5],mz:[.26,-.2,-1]},{n:'PISTOLA',dmg:45,rate:.25,mag:12,rec:.03,auto:0,m:12,pos:[.24,-.2,-.45],mz:[.24,-.17,-.75]}];
+const fp=new THREE.Group();W.forEach((w,i)=>{w.g=gunModel(i);fp.add(w.g)});cam.add(fp);fp.visible=false;
+function ftex(){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'#fff');g.addColorStop(.25,'#ffd060');g.addColorStop(.6,'#ff7a20aa');g.addColorStop(1,'#0000');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)}
+const FT=ftex(),mz=new THREE.Object3D(),fl=new THREE.Sprite(new THREE.SpriteMaterial({map:FT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false})),fll=new THREE.PointLight(0xffa640,0,10);fl.visible=false;mz.add(fl,fll);cam.add(mz);
+let ft;function flash(){fl.visible=true;fl.scale.setScalar(.3+R()*.25);fl.material.rotation=R()*6;fll.intensity=5;clearTimeout(ft);ft=setTimeout(()=>{fl.visible=false;fll.intensity=0},55)}
+function setW(i){P.w=i;W.forEach((w,j)=>w.g.visible=j==i);mz.position.set(...W[i].mz);P.reload=0;P.swap=.3;hud()}
+/* ---------- FX ---------- */
+const fx=[];
+function addFx(o,life,v,g=14,spin=1){o.userData={v:v||new V3(),life,g,spin};cur.add(o);fx.push(o)}
+function clearFx(){fx.forEach(f=>f.parent&&f.parent.remove(f));fx.length=0}
+const BM=new THREE.MeshBasicMaterial({color:0xb01018});
+function blood(p,n){for(let i=0;i<n;i++){const d=new THREE.Mesh(new THREE.TetrahedronGeometry(.05+R()*.08),BM);d.position.copy(p);addFx(d,.7+R()*.6,new V3((R()-.5)*5,R()*4,(R()-.5)*5))}}
+function dust(p,n,c=0xcfc6aa){const m=new THREE.MeshBasicMaterial({color:c});for(let i=0;i<n;i++){const d=new THREE.Mesh(new THREE.TetrahedronGeometry(.03+R()*.05),m);d.position.copy(p);addFx(d,.5,new V3((R()-.5)*3,R()*3,(R()-.5)*3))}}
+function pool(x,z){const m=new THREE.Mesh(new THREE.CircleGeometry(.9,10),new THREE.MeshBasicMaterial({color:0x6a0b10,transparent:true,opacity:.85,depthWrite:false}));m.rotation.x=-PI/2;m.position.set(x,.05,z);m.scale.setScalar(.2);addFx(m,40,null,0,0);m.userData.pool=1}
+function tracer(a,b,life=.06,c=0xffe28a){const m=new THREE.Mesh(new THREE.BoxGeometry(.02,.02,1),new THREE.MeshBasicMaterial({color:c}));const l=a.distanceTo(b);m.scale.z=l;m.position.copy(a).lerp(b,.5);m.lookAt(b);addFx(m,life,null,0,0)}
+const holes=[];function hole(p,n){const m=new THREE.Mesh(new THREE.CircleGeometry(.07,8),new THREE.MeshBasicMaterial({color:0x0c0c0c,transparent:true,opacity:.9,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));m.position.copy(p).addScaledVector(n,.02);m.lookAt(p.clone().add(n));cur.add(m);holes.push(m);if(holes.length>90)cur.remove(holes.shift())}
+function splat(n=3){for(let i=0;i<n;i++){const d=document.createElement('div'),s=90+R()*200;d.className='splat';d.style.cssText=`width:${s}px;height:${s}px;left:${R()*100}%;top:${R()*100}%;transform:translate(-50%,-50%)`;document.body.appendChild(d);setTimeout(()=>d.style.opacity=0,60);setTimeout(()=>d.remove(),2700)}}
+/* ---------- Cielo ---------- */
+function sky(sc,top,bot,fog){const c=document.createElement('canvas');c.width=2;c.height=256;const x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,top);g.addColorStop(.5,bot);g.addColorStop(1,'#f6e6c4');x.fillStyle=g;x.fillRect(0,0,2,256);
+sc.add(new THREE.Mesh(new THREE.SphereGeometry(320,16,12),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),side:THREE.BackSide,fog:false})));sc.fog=new THREE.Fog(fog,45,240);
+const cm=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true,emissive:0x8899aa,fog:false});
+for(let i=0;i<18;i++){const g=new THREE.Group();for(let j=0;j<5;j++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(6+R()*6,1),cm);m.position.set(j*8-16+R()*4,R()*3,R()*6);m.scale.y=.55;g.add(m)}const a=R()*6.28,d=140+R()*110;g.position.set(Math.cos(a)*d,65+R()*40,Math.sin(a)*d);g.rotation.y=R()*3;sc.add(g);clouds.push(g)}
+sc.add(new THREE.HemisphereLight(0xcfe8ff,0x55663a,.9));const s=new THREE.DirectionalLight(0xffe4b8,1.5);s.position.set(40,70,25);s.castShadow=true;s.shadow.mapSize.set(2048,2048);Object.assign(s.shadow.camera,{left:-60,right:60,top:60,bottom:-60,near:1,far:220});s.shadow.bias=-.0005;sc.add(s,s.target);return s}
+/* ---------- Humanos ---------- */
+function human(shirt,pants,helm,gun){const g=new THREE.Group(),M=(geo,c,x,y,z)=>{const m=mesh(geo,mat(c));m.position.set(x,y,z);return m};
+const torso=M(new THREE.BoxGeometry(.6,.75,.35),shirt,0,1.25,0),head=M(new THREE.IcosahedronGeometry(.22,1),0xe0b090,0,1.8,0),hel=M(new THREE.SphereGeometry(.26,8,6,0,6.3,0,1.5),helm,0,1.85,0);
+const lim=(w,h,c,x,y)=>{const p=new THREE.Group();p.add(M(new THREE.BoxGeometry(w,h,w),c,0,-h/2,0));p.position.set(x,y,0);return p};
+const aL=lim(.17,.7,shirt,-.4,1.58),aR=lim(.17,.7,shirt,.4,1.58),lL=lim(.22,.85,pants,-.17,.85),lR=lim(.22,.85,pants,.17,.85);g.add(torso,head,hel,aL,aR,lL,lR);
+if(gun){const gm=gunModel(0);gm.rotation.y=PI;gm.position.set(.12,1.3,.4);gm.scale.setScalar(1.2);g.add(gm)}
+g.rotation.order='YXZ';g.isBot=true;g.u={torso,head,aL,aR,lL,lR,hp:100,dead:0,dt:0,fl:0,st:0,cd:1+R()*2,los:R(),see:0,wd:R()*6,hd:R()*6,aimed:0};return g}
+function run(e,ph,a){const u=e.u;u.lL.rotation.x=Math.sin(ph)*.8*a;u.lR.rotation.x=-Math.sin(ph)*.8*a;if(!u.aimed){u.aL.rotation.x=-Math.sin(ph)*.7*a;u.aR.rotation.x=Math.sin(ph)*.7*a}}
+function aimPose(e,on){const u=e.u;u.aimed=on;if(on){u.aL.rotation.x=-1.35;u.aR.rotation.x=-1.5;u.aL.rotation.y=.3}}
+function kill(e){const u=e.u;if(u.dead)return;u.dead=1;u.dt=0;SND.dead();const p=e.position.clone();p.y=1.3;blood(p,18);pool(e.position.x,e.position.z)}
+function deadAnim(e,dt){const u=e.u;u.dt=Math.min(u.dt+dt,1);const k=Math.min(1,u.dt/.55);e.rotation.x=-k*1.5;e.position.y=k*.12;u.aL.rotation.x=-1.2*k;u.aR.rotation.x=-.4*k;u.aL.rotation.y=0;u.lL.rotation.x=.3*k;u.lR.rotation.x=-.2*k}
+/* ---------- Bosque ---------- */
+let jeck,sol=[],fire,fireL;
+function buildForest(){const sc=S.forest;cur=sc;sky(sc,'#2a74c9','#a2d2f2','#c3e3f5');
+const gg=new THREE.PlaneGeometry(300,300,70,70);gg.rotateX(-PI/2);const gp=gg.attributes.position;for(let i=0;i<gp.count;i++)gp.setY(i,(R()-.5)*.5);gg.computeVertexNormals();const gm=mesh(gg,mat(0x5f9a48),false);sc.add(gm);
+for(let i=0;i<110;i++){const a=R()*6.283,d=14+R()*70,x=Math.cos(a)*d,z=Math.sin(a)*d;if(Math.abs(x)<9&&z<0)continue;const s=.8+R()*1,g=new THREE.Group();
+const t=mesh(new THREE.CylinderGeometry(.22*s,.32*s,1.6*s,6),mat(0x6b4a2e));t.position.y=.8*s;const c1=mesh(new THREE.ConeGeometry(1.7*s,3*s,7),mat(0x2e7a45));c1.position.y=2.6*s;const c2=mesh(new THREE.ConeGeometry(1.3*s,2.6*s,7),mat(0x3d9658));c2.position.y=4*s;g.add(t,c1,c2);g.position.set(x,0,z);sc.add(g)}
+const tent=mesh(new THREE.ConeGeometry(2.3,2.1,4),mat(0xd9822b));tent.rotation.y=PI/4;tent.scale.z=1.4;tent.position.set(-5,1,-4);sc.add(tent);
+const tw=mesh(new THREE.BoxGeometry(1.3,.05,2.4),mat(0xc83a3a));tw.position.set(0,.04,0);sc.add(tw);
+for(let i=0;i<7;i++){const s=mesh(new THREE.IcosahedronGeometry(.22,0),mat(0x888e94));s.position.set(3+Math.cos(i*.9)*.7,.1,-4+Math.sin(i*.9)*.7);sc.add(s)}
+fire=mesh(new THREE.ConeGeometry(.35,.9,5),new THREE.MeshBasicMaterial({color:0xff9a2a}),false);fire.position.set(3,.45,-4);sc.add(fire);fireL=new THREE.PointLight(0xff8a30,1.5,12);fireL.position.set(3,1,-4);sc.add(fireL);
+jeck=human(0x2f6fb0,0x3a3f4a,0x222a38,true);const gl=mesh(new THREE.BoxGeometry(.4,.07,.1),mat(0x111111),false);gl.position.set(0,1.82,.2);jeck.add(gl);sc.add(jeck);
+for(let i=0;i<6;i++){const e=human(0x4b5d3a,0x2d3326,0x3a4a2c,true),a=-.7+i*.28;e.position.set(Math.sin(a)*42,0,-Math.cos(a)*42);e.visible=false;e.u.stop=13+(i%3)*2;sc.add(e);sol.push(e)}}
+/* ---------- Ciudad ---------- */
+const solids=[],colls=[];let cityBuilt=0,carM,citySun;
+function wtex(){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle='#d8d4cc';x.fillRect(0,0,128,128);for(let i=0;i<4;i++)for(let j=0;j<4;j++){x.fillStyle=R()<.15?'#7d8b96':'#2a3440';x.fillRect(i*32+7,j*32+8,18,16)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
+function box(sc,x,y,z,w,h,d,m,col=1){const b=mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y,z);sc.add(b);solids.push(b);if(col)colls.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});return b}
+function carModel(color,op=1){const g=new THREE.Group();const b=mesh(new THREE.BoxGeometry(1.9,.8,4.2),mat(color,{metalness:.3,roughness:.5}));b.position.y=.7;const c=mesh(new THREE.BoxGeometry(1.7,.7,2.2),mat(0x1a232c,{transparent:op<1,opacity:op,metalness:.6,roughness:.2}));c.position.set(0,1.45,.1);g.add(b
